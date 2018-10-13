@@ -1,0 +1,28 @@
+DISCLAIMER: This code is just a presentation for a totally starter, as I am with pandas. For any suggestion, please drop me a line.
+
+While processing huge datasets, Python has provided an easier way to handle them. Instead of using lists and dictionaries, 
+there is an easier, faster, convenient and using less memory way to do this. 
+
+Pandas is an open source, BSD-licensed library providing high-performance.
+
+Installation for PhyCharm: 
+File -> Setting -> Add new interpreter ->pandas
+
+NumPy is a package for scientific computing with Python.
+
+Same way for installation for PhyCharm.
+
+Basic steps for a data cleaning: 
+-import data 
+-merge data sets 
+-rebuild missing data if possible 
+-standardize data 
+-normalize data 
+-de-duplicate data
+-export data 
+
+For presenting this example, I used Jupyter Notebook. For more info: http://jupyter.org/
+Download anaconda, open anaconda prompt, type jupyter notebook
+
+I personally created the data set. The initial purpose was something small, so the user can print it and see the results easily. Also, 
+the specific data set has some of the most common mistakes that usually happen, so all the process can be presented.
