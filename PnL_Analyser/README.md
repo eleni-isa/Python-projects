@@ -33,7 +33,7 @@ python -m uvicorn main:app --reload --port 8000
 
 ### 3. Open the frontend
 
-Open `frontend/index.html` directly in your browser (double-click or `open frontend/index.html`).
+Open `http://127.0.0.1:8000/` directly in your browser.
 
 ## How it works
 
