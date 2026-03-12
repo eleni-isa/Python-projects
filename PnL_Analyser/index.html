@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio P&L Attribution</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="static/css/styles.css" />
+
+  <!-- Chart.js (loaded in head so it's available when app.js runs) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ── Connection overlay (visible until WebSocket connects) ── -->
+  <div id="overlay">
+    <div class="spinner"></div>
+    <p>CONNECTING TO BACKEND...</p>
+  </div>
+
+  <!-- ── Data dictionary modal ── -->
+  <div class="modal-backdrop" id="explainModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">Close</button>
+      <div class="modal-title">Data Dictionary</div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Input Curves — Editable</div>
+
+        <div class="modal-row">
+          <div class="modal-curve-name" style="color:var(--col-units)">Units Held</div>
+          <div>
+            <div class="modal-curve-desc">The number of units of the ETF held in the portfolio on each date. This changes when the portfolio is rebalanced — i.e. when you buy or sell shares.</div>
+          </div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-curve-name" style="color:var(--col-price)">Price (USD)</div>
+          <div>
+            <div class="modal-curve-desc">The closing market price of <span id="modalTicker">the ETF</span> in US dollars on each date, as reported by Yahoo Finance.</div>
+          </div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-curve-name" style="color:var(--col-fx)">FX Rate</div>
+          <div>
+            <div class="modal-curve-desc">The GBP/USD exchange rate — how many US dollars one British pound buys. Used to convert the USD market value into GBP (the portfolio's base currency).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Derived Curves — Computed by the Dependency Graph</div>
+
+        <div class="modal-row">
+          <div class="modal-curve-name" style="color:var(--col-mv)">Market Value</div>
+          <div>
+            <div class="modal-curve-desc">The total value of the position in US dollars.</div>
+            <div class="modal-formula">= Units &times; Price</div>
+          </div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-curve-name" style="color:var(--col-mvb)">MV Base CCY</div>
+          <div>
+            <div class="modal-curve-desc">Market Value converted into GBP (the base currency). This is the true portfolio value from a UK asset manager's perspective.</div>
+            <div class="modal-formula">= Market Value &divide; FX Rate</div>
+          </div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-curve-name" style="color:var(--col-pnl-pos)">Daily P&amp;L</div>
+          <div>
+            <div class="modal-curve-desc">The change in GBP market value from the previous period. Positive means the position gained value; negative means it lost value. The first period is always zero.</div>
+            <div class="modal-formula">= MV Base CCY(t) &minus; MV Base CCY(t&minus;1)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Scenario Comparison</div>
+        <div class="modal-curve-desc" style="line-height:1.7">
+          Use <strong style="color:var(--col-mvb)">Compare</strong> to overlay two scenarios side by side.
+          The <strong>Diff</strong> columns show the difference (Right minus Left) for each derived metric.
+          Green means the right scenario performed better; red means it performed worse.
+          Input columns are hidden in compare mode to focus on the outcomes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Page header ── -->
+  <header>
+    <h1>What-If <span>Scenario</span> Analyser</h1>
+    <div class="header-sep"></div>
+  </header>
+
+  <!-- ── Scenario toolbar + connection status ── -->
+  <div class="top-bar">
+    <div class="scenario-toolbar">
+      <span class="scenario-label">Scenario</span>
+      <select id="scenarioSelect" class="scenario-select"></select>
+
+      <button class="btn btn-new"    id="btnNewScenario">+ New</button>
+      <button class="btn btn-danger" id="btnRevert">Revert All</button>
+
+      <div class="toolbar-divider"></div>
+
+      <button class="btn btn-compare" id="btnCompare">&#8644; Compare</button>
+
+      <!-- Shown when compare mode is active -->
+      <div class="compare-select-wrap" id="compareSelectWrap">
+        <span class="compare-label">vs</span>
+        <select id="compareSelect" class="scenario-select"></select>
+      </div>
+
+      <!-- Shown when "+ New" is clicked -->
+      <div class="new-scenario-wrap" id="newScenarioWrap">
+        <input type="text" id="newScenarioName" placeholder="Scenario name..." maxlength="40" />
+        <button class="btn btn-new" id="btnConfirmNew">Create</button>
+        <button class="btn"         id="btnCancelNew">Cancel</button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="status-text" id="statusText">Connecting...</span>
+    </div>
+  </div>
+
+  <!-- ── Curve colour legend ── -->
+  <div class="legend-bar">
+    <div class="legend-group">
+      <span class="legend-group-label">Inputs</span>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--col-units)"></div><span>Units</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--col-price)"></div><span>Price</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--col-fx)"></div><span>FX Rate</span></div>
+    </div>
+    <div class="legend-sep"></div>
+    <div class="legend-group">
+      <span class="legend-group-label">Derived</span>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--col-mv)"></div><span>Market Value</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--col-mvb)"></div><span>MV Base CCY</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--col-pnl-pos)"></div><span>Daily P&amp;L</span></div>
+    </div>
+    <div class="legend-sep"></div>
+    <div class="legend-group">
+      <div class="legend-item"><div class="override-swatch"></div><span>Overridden</span></div>
+    </div>
+  </div>
+
+  <!-- ── Main panels ── -->
+  <div class="main-layout">
+
+    <!-- Data grid panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span id="gridPanelHeader">Data Grid</span>
+        </div>
+        <span id="metaBar" class="meta-info"></span>
+      </div>
+      <div class="table-scroll">
+        <table id="grid">
+          <thead id="gridHead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Chart panel -->
+    <div class="panel">
+      <div class="panel-header"><span>Chart</span></div>
+      <div class="chart-controls">
+        <div class="curve-checkboxes" id="chipContainer"></div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- App script (loaded last so all DOM elements exist) -->
+  <script src="static/js/app.js"></script>
+</body>
+</html>

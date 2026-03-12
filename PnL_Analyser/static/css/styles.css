@@ -1,0 +1,375 @@
+/* =============================================================================
+   styles.css — Portfolio P&L Attribution
+   Glassmorphism dark theme using Space Grotesk + Space Mono typography.
+   ============================================================================= */
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ── */
+:root {
+  --bg-deep:         #06080d;
+  --glass-bg:        rgba(255, 255, 255, 0.035);
+  --glass-bg-2:      rgba(255, 255, 255, 0.055);
+  --glass-border:    rgba(255, 255, 255, 0.08);
+  --glass-border-hi: rgba(255, 255, 255, 0.14);
+  --glass-shine:     rgba(255, 255, 255, 0.04);
+
+  --text:     #b8c4d8;
+  --text-dim: #48566a;
+  --text-hi:  #e8edf5;
+
+  --col-units:   #00d4ff;
+  --col-price:   #ff6b35;
+  --col-fx:      #c084fc;
+  --col-mv:      #fbbf24;
+  --col-mvb:     #a8ff78;
+  --col-pnl-pos: #34d399;
+  --col-pnl-neg: #ff4560;
+  --danger:      #ff4560;
+
+  --override-bg:     rgba(255, 214, 0, 0.05);
+  --override-border: #ffd600;
+  --diff-pos:        rgba(52, 211, 153, 0.1);
+  --diff-neg:        rgba(255, 69, 96, 0.1);
+  --row-hover:       rgba(255, 255, 255, 0.025);
+}
+
+/* ── Body + ambient background mesh ── */
+body {
+  background: var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse 80% 55% at 15% -5%,  rgba(0, 100, 200, 0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 85% 105%, rgba(120, 0, 200, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 55% 45%,  rgba(0, 180, 100, 0.04) 0%, transparent 55%);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 24px 80px;
+}
+
+/* ── Page header ── */
+header {
+  width: 100%; max-width: 1240px; margin-bottom: 28px;
+  display: flex; align-items: baseline; gap: 16px;
+}
+h1 { font-size: 20px; font-weight: 300; color: var(--text-hi); letter-spacing: -0.01em; }
+h1 span { color: var(--col-mvb); font-weight: 500; }
+.header-sep {
+  flex: 1; height: 1px; align-self: center;
+  background: linear-gradient(to right, var(--glass-border), transparent);
+}
+
+/* ── Top bar (toolbar + status) ── */
+.top-bar {
+  width: 100%; max-width: 1240px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+
+/* ── Connection status indicator ── */
+.status-bar { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 11px; }
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-dim); transition: background 0.4s, box-shadow 0.4s;
+}
+.status-dot.connected    { background: var(--col-mvb);   box-shadow: 0 0 10px rgba(168, 255, 120, 0.5); }
+.status-dot.disconnected { background: var(--danger); }
+.status-dot.updating     { background: var(--col-units); box-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
+.status-text { color: var(--text-dim); }
+
+/* ── Scenario toolbar ── */
+.scenario-toolbar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.scenario-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim);
+}
+select.scenario-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border-hi);
+  color: var(--text-hi); font-family: 'Space Mono', monospace;
+  font-size: 12px; padding: 5px 10px; border-radius: 6px;
+  cursor: pointer; outline: none; transition: border-color 0.2s;
+}
+select.scenario-select:focus { border-color: var(--col-units); }
+.toolbar-divider { width: 1px; height: 18px; background: var(--glass-border-hi); margin: 0 2px; }
+
+/* ── Buttons ── */
+.btn {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  padding: 5px 13px; border-radius: 6px;
+  border: 1px solid var(--glass-border-hi);
+  cursor: pointer; transition: all 0.18s;
+  background: transparent; color: var(--text);
+}
+.btn:hover        { border-color: var(--col-units); color: var(--col-units); background: rgba(0, 212, 255, 0.06); }
+.btn:disabled     { opacity: 0.25; cursor: default; pointer-events: none; }
+.btn-danger       { border-color: rgba(255, 69, 96, 0.3);   color: var(--danger); }
+.btn-danger:hover { background: rgba(255, 69, 96, 0.08); border-color: var(--danger); }
+.btn-new          { border-color: rgba(0, 212, 255, 0.25);  color: var(--col-units); }
+.btn-new:hover    { background: rgba(0, 212, 255, 0.08); border-color: var(--col-units); }
+.btn-compare      { border-color: rgba(168, 255, 120, 0.25); color: var(--col-mvb); }
+.btn-compare:hover  { background: rgba(168, 255, 120, 0.07); border-color: var(--col-mvb); }
+.btn-compare.active {
+  background: rgba(168, 255, 120, 0.10); border-color: var(--col-mvb);
+  box-shadow: 0 0 10px rgba(168, 255, 120, 0.15);
+}
+
+/* ── New scenario inline input ── */
+.new-scenario-wrap { display: none; align-items: center; gap: 8px; }
+.new-scenario-wrap.visible { display: flex; }
+input#newScenarioName {
+  background: rgba(0, 212, 255, 0.05); border: 1px solid var(--col-units);
+  color: var(--text-hi); font-family: 'Space Mono', monospace;
+  font-size: 12px; padding: 5px 10px; border-radius: 6px;
+  outline: none; width: 160px;
+}
+
+/* ── Compare scenario selector ── */
+.compare-select-wrap { display: none; align-items: center; gap: 8px; }
+.compare-select-wrap.visible { display: flex; }
+.compare-label {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--col-mvb); opacity: 0.8;
+}
+
+/* ── Curve legend bar ── */
+.legend-bar {
+  width: 100%; max-width: 1240px;
+  display: flex; align-items: center; gap: 20px;
+  margin-bottom: 20px; flex-wrap: wrap;
+  padding: 10px 18px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.legend-group       { display: flex; align-items: center; gap: 14px; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim); }
+.legend-group-label { letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.5; font-size: 9px; }
+.legend-item        { display: flex; align-items: center; gap: 6px; }
+.legend-dot         { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+.legend-sep         { width: 1px; height: 14px; background: var(--glass-border); }
+.override-swatch    { width: 10px; height: 10px; border-radius: 2px; background: var(--override-bg); border: 1px solid var(--override-border); }
+
+/* ── Main panel layout ── */
+.main-layout { width: 100%; max-width: 1240px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Glass panel ── */
+.panel {
+  border: 1px solid var(--glass-border);
+  border-radius: 14px; overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 1px 0 var(--glass-shine) inset,
+    0 24px 64px rgba(0, 0, 0, 0.45),
+    0 0 0 0.5px rgba(255, 255, 255, 0.025);
+  transition: box-shadow 0.3s;
+}
+.panel:hover {
+  box-shadow:
+    0 1px 0 var(--glass-shine) inset,
+    0 32px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 0.5px rgba(255, 255, 255, 0.04);
+}
+.panel-header {
+  background: var(--glass-bg-2);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 12px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-dim);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.panel-header-left { display: flex; align-items: center; gap: 12px; }
+
+/* ── Meta info bar (asset / fx / date range) ── */
+.meta-info     { display: flex; align-items: center; gap: 14px; font-family: 'Space Mono', monospace; font-size: 10px; }
+.meta-item     { display: flex; align-items: center; gap: 6px; color: var(--text-dim); }
+.meta-item-label { letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.45; font-size: 9px; }
+.meta-item-value { color: var(--text-hi); }
+.meta-divider    { width: 1px; height: 12px; background: var(--glass-border-hi); }
+
+/* ── Data table ── */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+thead tr { background: rgba(255, 255, 255, 0.02); }
+
+th {
+  padding: 13px 18px; text-align: right;
+  font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+  border-bottom: 1px solid var(--glass-border);
+}
+th:first-child { text-align: left; padding-left: 22px; }
+th:last-child  { padding-right: 22px; }
+
+/* Column header colour coding */
+th.col-date  { color: var(--text-dim); }
+th.col-units { color: var(--col-units); }
+th.col-price { color: var(--col-price); }
+th.col-fx    { color: var(--col-fx); }
+th.col-mv    { color: var(--col-mv); }
+th.col-mvb   { color: var(--col-mvb); }
+th.col-pnl   { color: var(--col-pnl-pos); }
+th.col-diff  { color: var(--text-dim); font-style: italic; }
+
+/* Section dividers between input and derived column groups */
+th.section-start, td.section-start { border-left: 1px solid var(--glass-border-hi); }
+th.derived-start { border-left: 1px solid var(--glass-border-hi); }
+td.derived-start { border-left: 1px solid var(--glass-border); }
+
+tr.section-header th {
+  background: rgba(0, 0, 0, 0.15); font-size: 8px; letter-spacing: 0.12em;
+  color: var(--text-dim); opacity: 0.6; padding: 5px 18px;
+  border-bottom: none; border-top: 1px solid var(--glass-border);
+}
+
+/* Body rows */
+tbody tr { border-top: 1px solid rgba(255, 255, 255, 0.032); transition: background 0.15s; }
+tbody tr:hover { background: var(--row-hover); }
+tbody tr:nth-child(even)       { background: rgba(255, 255, 255, 0.01); }
+tbody tr:nth-child(even):hover { background: var(--row-hover); }
+
+td {
+  padding: 0; font-family: 'Space Mono', monospace;
+  font-size: 11.5px; text-align: right; position: relative;
+}
+td.cell-date {
+  padding: 13px 16px 13px 22px; color: var(--text-dim); font-size: 11px;
+  text-align: left; user-select: none; white-space: nowrap; letter-spacing: 0.02em;
+}
+td.cell-derived {
+  padding: 13px 18px; font-weight: 500; transition: background 0.25s;
+}
+td.cell-derived:last-child { padding-right: 22px; }
+
+/* Derived cell colour coding */
+td.cell-mv       { color: var(--col-mv); }
+td.cell-mvb      { color: var(--col-mvb); }
+td.cell-pnl-pos  { color: var(--col-pnl-pos); }
+td.cell-pnl-neg  { color: var(--col-pnl-neg); }
+td.cell-pnl-zero { color: var(--text-dim); }
+
+/* Compare-mode diff cells */
+td.cell-diff { padding: 13px 18px; font-size: 11px; font-weight: 500; }
+td.cell-diff.pos  { color: var(--col-pnl-pos); background: var(--diff-pos); }
+td.cell-diff.neg  { color: var(--col-pnl-neg); background: var(--diff-neg); }
+td.cell-diff.zero { color: var(--text-dim); }
+
+/* Flash animation — briefly highlights cells that just updated */
+td.flash { background: rgba(255, 255, 255, 0.06) !important; }
+
+/* Override highlight — left border gradient + tinted background */
+td.overridden { background: var(--override-bg); }
+td.overridden::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%;
+  background: linear-gradient(to bottom, var(--override-border), rgba(255, 214, 0, 0.3));
+}
+
+/* Editable input cells inside the table */
+.cell-input {
+  width: 100%; padding: 13px 18px;
+  background: transparent; border: none; outline: none;
+  font-family: 'Space Mono', monospace; font-size: 12px;
+  text-align: right; color: var(--text-hi); cursor: text;
+  transition: background 0.15s;
+}
+.cell-input.col-units { color: var(--col-units); }
+.cell-input.col-price { color: var(--col-price); }
+.cell-input.col-fx    { color: var(--col-fx); }
+.cell-input:focus { background: rgba(255, 255, 255, 0.04); }
+
+/* ── Chart panel ── */
+.chart-controls {
+  padding: 14px 20px; border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.curve-checkboxes { display: flex; flex-wrap: wrap; gap: 8px; }
+.curve-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px; border: 1px solid var(--glass-border);
+  cursor: pointer; font-family: 'Space Mono', monospace; font-size: 11px;
+  color: var(--text-dim); transition: all 0.2s; user-select: none; background: transparent;
+}
+.curve-chip input { display: none; }
+.curve-chip.active { border-color: currentColor; background: rgba(255, 255, 255, 0.04); }
+.curve-chip:hover  { background: rgba(255, 255, 255, 0.04); }
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.curve-chip.active .chip-dot { box-shadow: 0 0 6px currentColor; }
+.chart-wrap { padding: 20px; position: relative; height: 300px; }
+
+/* ── Data dictionary modal ── */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(6, 8, 13, 0.8);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-backdrop.visible { opacity: 1; pointer-events: all; }
+.modal {
+  background: rgba(10, 14, 24, 0.88); border: 1px solid var(--glass-border-hi);
+  border-radius: 16px; width: 100%; max-width: 580px; padding: 32px; position: relative;
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), 0 1px 0 var(--glass-shine) inset;
+  backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+}
+.modal-backdrop.visible .modal { transform: translateY(0) scale(1); }
+.modal-title {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--col-fx); margin-bottom: 24px;
+}
+.modal-section { margin-bottom: 28px; }
+.modal-section-label {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.10em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px;
+  border-bottom: 1px solid var(--glass-border); padding-bottom: 7px;
+}
+.modal-row { display: grid; grid-template-columns: 160px 1fr; gap: 12px; margin-bottom: 16px; align-items: start; }
+.modal-curve-name { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 500; }
+.modal-curve-desc { font-size: 13px; color: var(--text); line-height: 1.6; }
+.modal-formula {
+  font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim);
+  margin-top: 5px; padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.03); border-radius: 4px; display: inline-block;
+}
+.modal-close {
+  position: absolute; top: 18px; right: 18px;
+  background: transparent; border: 1px solid var(--glass-border-hi);
+  color: var(--text-dim); font-family: 'Space Mono', monospace;
+  font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+}
+.modal-close:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Connection overlay ── */
+#overlay {
+  position: fixed; inset: 0; background: rgba(6, 8, 13, 0.96);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; z-index: 100; font-family: 'Space Mono', monospace;
+}
+#overlay.hidden { display: none; }
+.spinner {
+  width: 26px; height: 26px;
+  border: 1.5px solid var(--glass-border-hi); border-top-color: var(--col-units);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#overlay p { font-size: 11px; color: var(--text-dim); letter-spacing: 0.10em; }
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border-hi); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
